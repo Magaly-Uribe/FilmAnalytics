@@ -1,0 +1,7 @@
+<!ELEMENT predicciones (pelicula+)>
+<!ELEMENT pelicula (titulo, anio, genero, probabilidad, etiqueta)>
+<!ELEMENT titulo (#PCDATA)>
+<!ELEMENT anio (#PCDATA)>
+<!ELEMENT genero (#PCDATA)>
+<!ELEMENT probabilidad (#PCDATA)>
+<!ELEMENT etiqueta (#PCDATA)>

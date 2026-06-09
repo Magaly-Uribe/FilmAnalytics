@@ -1,0 +1,62 @@
+[
+  {
+    "rank": 1,
+    "titulo": "Avatar",
+    "recaudacion": "$2,923,706,026",
+    "imagen": "assets/images/posters/poster_01.jpg"
+  },
+  {
+    "rank": 2,
+    "titulo": "Avengers: Endgame",
+    "recaudacion": "$2,799,439,100",
+    "imagen": "assets/images/posters/poster_02.jpg"
+  },
+  {
+    "rank": 3,
+    "titulo": "Avatar: The Way of Water",
+    "recaudacion": "$2,320,250,281",
+    "imagen": "assets/images/posters/poster_03.jpg"
+  },
+  {
+    "rank": 4,
+    "titulo": "Titanic",
+    "recaudacion": "$2,264,743,305",
+    "imagen": "assets/images/posters/poster_04.jpg"
+  },
+  {
+    "rank": 5,
+    "titulo": "Star Wars: The Force Awakens",
+    "recaudacion": "$2,071,310,218",
+    "imagen": "assets/images/posters/poster_05.jpg"
+  },
+  {
+    "rank": 6,
+    "titulo": "Avengers: Infinity War",
+    "recaudacion": "$2,052,415,039",
+    "imagen": "assets/images/posters/poster_06.jpg"
+  },
+  {
+    "rank": 7,
+    "titulo": "Spider-Man: No Way Home",
+    "recaudacion": "$1,921,847,111",
+    "imagen": "assets/images/posters/poster_07.jpg"
+  },
+  {
+    "rank": 8,
+    "titulo": "Inside Out 2",
+    "recaudacion": "$1,698,857,492",
+    "imagen": "assets/images/posters/poster_08.jpg"
+  },
+  {
+    "rank": 9,
+    "titulo": "Jurassic World",
+    "recaudacion": "$1,671,713,208",
+    "imagen": "assets/images/posters/poster_09.jpg"
+  },
+  {
+    "rank": 10,
+    "titulo": "The Lion King (2019)",
+    "recaudacion": "$1,663,075,401",
+    "imagen": "assets/images/posters/poster_10.jpg"
+  }
+]

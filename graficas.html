@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FilmAnalytics — Gráficas</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <link rel="stylesheet" href="css/header.css"/>
+  <link rel="stylesheet" href="css/graficas.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="inventario.html" class="nav-btn">Explorar</a>
+    <a href="graficas.html"     class="nav-btn active">Gráficas</a>
+    <a href="index.html" class="header-logo">
+      <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
+      <span class="logo-text">Film<span>Analytics</span></span>
+    </a>
+    <a href="mapa.html"         class="nav-btn">Mapa</a>
+    <a href="predicciones.html" class="nav-btn">Predicciones</a>
+  </header>
+
+  <div class="graficas-layout">
+
+    <div class="graficas-main">
+      <div>
+        <p class="section-eyebrow">Análisis visual</p>
+        <h1 class="section-title">Gráficas de rendimiento</h1>
+      </div>
+
+      <div class="chart-card">
+        <p class="chart-card__label">Gráfica 1</p>
+        <p class="chart-card__title">Recaudación vs Calificación IMDb — dispersión</p>
+        <canvas id="chartDispersion" height="130"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <p class="chart-card__label">Gráfica 2</p>
+        <p class="chart-card__title">Tendencia de ingresos globales por año</p>
+        <canvas id="chartLinea" height="120"></canvas>
+      </div>
+    </div>
+
+    <aside class="graficas-sidebar">
+
+      <div class="desc-card">
+        <div class="desc-card__title">Base de datos</div>
+        <p class="desc-card__text">Registro histórico de películas analizadas en el sistema.</p>
+        <div class="desc-card__stat">1,247</div>
+        <div class="desc-card__stat-label">Películas en la base de datos</div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card__title">Géneros registrados</div>
+        <p class="desc-card__text">Distribución por género en el inventario actual.</p>
+        <div style="display:flex; flex-direction:column; gap:7px; margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Acción / Aventura</span>
+            <span style="color:#e63946; font-weight:700;">387</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Drama</span>
+            <span style="color:#e63946; font-weight:700;">241</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Comedia</span>
+            <span style="color:#e63946; font-weight:700;">198</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Animación</span>
+            <span style="color:#e63946; font-weight:700;">156</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Ciencia Ficción</span>
+            <span style="color:#e63946; font-weight:700;">143</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <span style="color:#1d1d1f; font-weight:600;">Terror</span>
+            <span style="color:#e63946; font-weight:700;">122</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="desc-card">
+        <div class="desc-card__title">Período analizado</div>
+        <p class="desc-card__text">Películas estrenadas entre 1990 y 2024 con datos completos de taquilla.</p>
+        <div class="desc-card__stat">34</div>
+        <div class="desc-card__stat-label">Años de registro histórico</div>
+      </div>
+
+    </aside>
+  </div>
+
+  <script>
+    const RED    = '#e63946';
+    const MUTED  = '#6e6e73';
+    const BORDER = '#e5e5e5';
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = MUTED;
+
+    fetch('data/graficas.json')
+      .then(r => r.json())
+      .then(d => {
+
+        new Chart(document.getElementById('chartDispersion'), {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'Película',
+              data: d.dispersion.map(p => ({ x: p.imdb, y: p.recaudacion, titulo: p.titulo })),
+              backgroundColor: RED,
+              pointRadius: 6,
+              pointHoverRadius: 9,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.raw.titulo} — IMDb: ${ctx.raw.x} | $${ctx.raw.y}M`
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Calificación IMDb', color: MUTED, font: { size: 11 } },
+                min: 6, max: 9.5,
+                grid: { color: BORDER }
+              },
+              y: {
+                title: { display: true, text: 'Recaudación (millones USD)', color: MUTED, font: { size: 11 } },
+                grid: { color: BORDER },
+                ticks: { callback: v => '$' + v + 'M' }
+              }
+            }
+          }
+        });
+
+        new Chart(document.getElementById('chartLinea'), {
+          type: 'line',
+          data: {
+            labels: d.tendencia.map(t => t.anio),
+            datasets: [{
+              label: 'Ingresos globales (miles de millones USD)',
+              data: d.tendencia.map(t => t.ingresos),
+              borderColor: RED,
+              backgroundColor: 'rgba(230,57,70,0.07)',
+              borderWidth: 2.5,
+              pointBackgroundColor: RED,
+              pointRadius: 4,
+              fill: true,
+              tension: 0.4,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: BORDER } },
+              y: {
+                grid: { color: BORDER },
+                ticks: { callback: v => '$' + v + 'B' }
+              }
+            }
+          }
+        });
+
+      });
+  </script>
+
+</body>
+</html>

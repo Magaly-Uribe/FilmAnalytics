@@ -1,0 +1,20 @@
+{
+  "proyeccion": [
+    {"semana": "Estreno", "modelo": 180, "historico": 120},
+    {"semana": "Sem 2",   "modelo": 320, "historico": 230},
+    {"semana": "Sem 3",   "modelo": 480, "historico": 360},
+    {"semana": "Sem 4",   "modelo": 620, "historico": 470},
+    {"semana": "Sem 6",   "modelo": 820, "historico": 620},
+    {"semana": "Sem 8",   "modelo": 950, "historico": 730},
+    {"semana": "Sem 12",  "modelo": 1080,"historico": 840},
+    {"semana": "Sem 16",  "modelo": 1180,"historico": 900},
+    {"semana": "Sem 24",  "modelo": 1240,"historico": 940}
+  ],
+  "tabla": [
+    {"metadato": "Acción / Aventura — Verano", "xvus": "8,400,000", "prediccion": "$1,240M", "confianza": "Alta 87%"},
+    {"metadato": "Presupuesto $200M+",          "xvus": "7,800,000", "prediccion": "$980M",  "confianza": "Alta 82%"},
+    {"metadato": "Estreno julio (temporada alta)","xvus": "6,100,000","prediccion": "$890M",  "confianza": "Media 71%"},
+    {"metadato": "Franquicia conocida",          "xvus": "5,800,000", "prediccion": "$760M",  "confianza": "Media 68%"},
+    {"metadato": "Mercado Asia-Pacífico",        "xvus": "3,200,000", "prediccion": "$340M",  "confianza": "Media 65%"}
+  ]
+}

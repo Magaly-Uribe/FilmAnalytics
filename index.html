@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FilmAnalytics — Explorar</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="inventario.html" class="nav-btn">Explorar</a>
+    <a href="graficas.html" class="nav-btn">Gráficas</a>
+
+    <a href="index.html" class="header-logo">
+      <img src="assets/images/logo_film.png" alt="FilmAnalytics"
+           onerror="this.style.display='none'">
+      <span class="logo-text">Film<span>Analytics</span></span>
+    </a>
+
+    <a href="mapa.html"         class="nav-btn">Mapa</a>
+    <a href="predicciones.html" class="nav-btn">Predicciones</a>
+  </header>
+
+  <section class="home-hero">
+    <p class="home-hero__eyebrow">Box office histórico</p>
+    <h1 class="home-hero__title">TOP 10<br>Películas</h1>
+    <p class="home-hero__sub">Las producciones con mayor recaudación en la historia del cine mundial.</p>
+  </section>
+
+  <section class="movies-section">
+    <div class="movies-grid" id="movies-grid">
+      <p class="loading-state">Cargando películas…</p>
+    </div>
+  </section>
+
+  <script>
+    const grid = document.getElementById('movies-grid');
+
+    fetch('data/peliculas.json')
+      .then(res => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(peliculas => {
+        grid.innerHTML = '';
+        peliculas.forEach(p => {
+          const card = document.createElement('article');
+          card.className = 'movie-card';
+
+          const poster = p.imagen
+            ? `<img class="movie-card__poster" src="${p.imagen}"
+                 alt="${p.titulo}" loading="lazy"
+                 onerror="this.remove()">`
+            : '';
+
+          card.innerHTML = `
+            ${poster}
+            <div class="movie-card__bg-num">${p.rank}</div>
+            <div class="movie-card__overlay">
+              <span class="movie-card__rank">#${String(p.rank).padStart(2,'0')}</span>
+              <h2 class="movie-card__title">${p.titulo}</h2>
+              ${p.recaudacion ? `<p class="movie-card__revenue">${p.recaudacion}</p>` : ''}
+            </div>`;
+
+          grid.appendChild(card);
+        });
+      })
+      .catch(() => {
+        grid.innerHTML = `<p class="error-state">
+          No se cargó <code>data/peliculas.json</code>.<br>
+          Corre: <code>python scraper/scraper.py</code><br>
+          Abre con: <code>python -m http.server 8080</code>
+        </p>`;
+      });
+  </script>
+
+</body>
+</html>

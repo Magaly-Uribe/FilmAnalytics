@@ -1,0 +1,10 @@
+<!ELEMENT peliculas (pelicula+)>
+<!ELEMENT pelicula (id, titulo, anio, popularidad, calificacion, genero, pais, ganancias)>
+<!ELEMENT id (#PCDATA)>
+<!ELEMENT titulo (#PCDATA)>
+<!ELEMENT anio (#PCDATA)>
+<!ELEMENT popularidad (#PCDATA)>
+<!ELEMENT calificacion (#PCDATA)>
+<!ELEMENT genero (#PCDATA)>
+<!ELEMENT pais (#PCDATA)>
+<!ELEMENT ganancias (#PCDATA)>

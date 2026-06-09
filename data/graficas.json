@@ -1,0 +1,40 @@
+{
+  "dispersion": [
+    {"titulo": "Avatar",                   "imdb": 7.9, "recaudacion": 2923},
+    {"titulo": "Avengers: Endgame",        "imdb": 8.4, "recaudacion": 2799},
+    {"titulo": "Avatar: Way of Water",     "imdb": 7.6, "recaudacion": 2320},
+    {"titulo": "Titanic",                  "imdb": 7.9, "recaudacion": 2264},
+    {"titulo": "Star Wars: Force Awakens", "imdb": 7.8, "recaudacion": 2071},
+    {"titulo": "Avengers: Infinity War",   "imdb": 8.4, "recaudacion": 2052},
+    {"titulo": "Spider-Man: No Way Home",  "imdb": 8.2, "recaudacion": 1921},
+    {"titulo": "Inside Out 2",             "imdb": 7.8, "recaudacion": 1698},
+    {"titulo": "Jurassic World",           "imdb": 7.0, "recaudacion": 1671},
+    {"titulo": "The Lion King 2019",       "imdb": 6.9, "recaudacion": 1663},
+    {"titulo": "The Avengers",             "imdb": 8.0, "recaudacion": 1516},
+    {"titulo": "Furious 7",                "imdb": 7.2, "recaudacion": 1516},
+    {"titulo": "Top Gun: Maverick",        "imdb": 8.2, "recaudacion": 1491},
+    {"titulo": "Frozen II",                "imdb": 6.8, "recaudacion": 1450},
+    {"titulo": "Black Panther",            "imdb": 7.3, "recaudacion": 1347},
+    {"titulo": "The Dark Knight",          "imdb": 9.0, "recaudacion": 1005},
+    {"titulo": "Inception",                "imdb": 8.8, "recaudacion": 836},
+    {"titulo": "Interstellar",             "imdb": 8.6, "recaudacion": 773}
+  ],
+  "tendencia": [
+    {"anio": "2010", "ingresos": 21.2},
+    {"anio": "2011", "ingresos": 22.4},
+    {"anio": "2012", "ingresos": 24.8},
+    {"anio": "2013", "ingresos": 26.1},
+    {"anio": "2014", "ingresos": 27.5},
+    {"anio": "2015", "ingresos": 29.3},
+    {"anio": "2016", "ingresos": 30.4},
+    {"anio": "2017", "ingresos": 31.0},
+    {"anio": "2018", "ingresos": 32.8},
+    {"anio": "2019", "ingresos": 34.6},
+    {"anio": "2020", "ingresos": 12.4},
+    {"anio": "2021", "ingresos": 21.5},
+    {"anio": "2022", "ingresos": 26.0},
+    {"anio": "2023", "ingresos": 29.1}
+  ],
+  "descripcion_dispersion": "Relación entre calificación IMDb y recaudación. Correlación positiva moderada — mejores calificaciones tienden a mayor taquilla, aunque no siempre.",
+  "descripcion_tendencia": "Evolución de ingresos globales 2010–2023. El valle de 2020 corresponde al cierre de salas por pandemia. La recuperación fue completa para 2023."
+}

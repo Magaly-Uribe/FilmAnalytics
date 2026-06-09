@@ -1,0 +1,5 @@
+<!ELEMENT peliculas (pelicula+)>
+<!ELEMENT pelicula (rank, titulo, recaudacion)>
+<!ELEMENT rank (#PCDATA)>
+<!ELEMENT titulo (#PCDATA)>
+<!ELEMENT recaudacion (#PCDATA)>

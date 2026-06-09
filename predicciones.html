@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FilmAnalytics — Predicciones</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <link rel="stylesheet" href="css/header.css"/>
+  <link rel="stylesheet" href="css/predicciones.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="inventario.html" class="nav-btn">Explorar</a>
+    <a href="graficas.html" class="nav-btn">Gráficas</a>
+    <a href="index.html" class="header-logo">
+      <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
+      <span class="logo-text">Film<span>Analytics</span></span>
+    </a>
+    <a href="mapa.html"         class="nav-btn">Mapa</a>
+    <a href="predicciones.html" class="nav-btn active">Predicciones</a>
+  </header>
+
+  <div class="pred-layout">
+
+    <aside class="pred-sidebar">
+      <p class="pred-sidebar__eyebrow">Modelo predictivo</p>
+      <h2 class="pred-sidebar__title">Ingresar datos</h2>
+
+      <div class="pred-tabs">
+        <button class="pred-tab active">Ingresar datos</button>
+        <button class="pred-tab">Generar predic.</button>
+      </div>
+
+      <div class="pred-form">
+        <div class="form-group">
+          <label class="form-label">Nombre de la película</label>
+          <input class="form-input" type="text" id="input-title" placeholder="Ej. The Last Frontier"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Año de estreno</label>
+          <input class="form-input" type="number" id="input-year" placeholder="Ej. 2025" min="1900" max="2040"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Género</label>
+          <select class="form-select" id="input-genre">
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Animation">Animation</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Crime">Crime</option>
+            <option value="Drama">Drama</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Horror">Horror</option>
+            <option value="Romance">Romance</option>
+            <option value="Science Fiction">Science Fiction</option>
+            <option value="Thriller">Thriller</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presupuesto estimado (USD)</label>
+          <input class="form-input" type="text" id="input-budget" placeholder="Ej. 200000000"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estudio / Distribuidora</label>
+          <select class="form-select" id="input-company">
+            <!-- Se llena desde la BD -->
+          </select>
+        </div>
+        <button class="pred-submit">Calcular predicción</button>
+      </div>
+    </aside>
+
+    <main class="pred-main">
+      <div>
+        <h1 class="pred-main__title">Proyección de ingresos</h1>
+        <p class="pred-main__sub">Resultados del modelo basados en datos históricos de box office mundial</p>
+      </div>
+
+      <div class="pred-chart-card">
+        <p class="pred-chart-card__label">Curva de ingresos proyectada — semanas post-estreno</p>
+        <canvas id="chartProyeccion" height="200"></canvas>
+      </div>
+
+      <div class="pred-table-wrap">
+        <table class="pred-table">
+          <thead>
+            <tr>
+              <th>Metadatos</th>
+              <th>XVUs</th>
+              <th>Predicción</th>
+              <th>Confianza</th>
+            </tr>
+          </thead>
+          <tbody id="pred-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const RED    = '#e63946';
+    const MUTED  = '#6e6e73';
+    const BORDER = '#e5e5e5';
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = MUTED;
+
+    // Cargar compañías desde MariaDB
+    fetch('api/companias.php')
+      .then(r => r.json())
+      .then(companias => {
+        const select = document.getElementById('input-company');
+        select.innerHTML = '';
+        companias.forEach(c => {
+          select.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+      });
+
+    // Gráfica y tabla — se llenan después de calcular predicción
+    let chartProyeccion = null;
+
+    document.querySelector('.pred-submit').addEventListener('click', () => {
+      const titulo  = document.getElementById('input-title').value;
+      const anio    = document.getElementById('input-year').value;
+      const genero  = document.getElementById('input-genre').value;
+      const budget  = document.getElementById('input-budget').value;
+      const company = document.getElementById('input-company').value;
+
+      if (!titulo || !anio || !budget) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+
+      fetch('api/predecir.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, anio, genero, budget, company })
+      })
+      .then(r => r.json())
+      .then(d => {
+
+        // Tabla de resultados
+        const tbody = document.getElementById('pred-tbody');
+        tbody.innerHTML = `
+          <tr>
+            <td>${d.titulo}</td>
+            <td>${d.genero} — ${d.anio}</td>
+            <td class="td-accent">${d.etiqueta}</td>
+            <td><span class="td-badge">${d.confianza}%</span></td>
+          </tr>`;
+
+        // Gráfica de curva histórica del género
+        if (chartProyeccion) chartProyeccion.destroy();
+        chartProyeccion = new Chart(document.getElementById('chartProyeccion'), {
+          type: 'line',
+          data: {
+            labels: d.curva.map(p => p.semana),
+            datasets: [
+              {
+                label: 'Proyección modelo',
+                data: d.curva.map(p => p.modelo),
+                borderColor: RED,
+                backgroundColor: 'rgba(230,57,70,0.07)',
+                borderWidth: 2.5,
+                pointBackgroundColor: RED,
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4,
+              },
+              {
+                label: 'Promedio histórico género',
+                data: d.curva.map(p => p.historico),
+                borderColor: '#1d1d1f',
+                borderDash: [5, 4],
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.4,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true, position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+              tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.raw}M` } }
+            },
+            scales: {
+              x: { grid: { color: BORDER } },
+              y: { grid: { color: BORDER }, ticks: { callback: v => '$' + v + 'M' } }
+            }
+          }
+        });
+
+      })
+      .catch(err => console.error('Error:', err));
+    });
+
+  </script>
+
+</body>
+</html>

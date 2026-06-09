@@ -1,0 +1,10 @@
+<!ELEMENT graficas (dispersion, tendencia)>
+<!ELEMENT dispersion (pelicula+)>
+<!ELEMENT pelicula (titulo, imdb, recaudacion)>
+<!ELEMENT titulo (#PCDATA)>
+<!ELEMENT imdb (#PCDATA)>
+<!ELEMENT recaudacion (#PCDATA)>
+<!ELEMENT tendencia (punto+)>
+<!ELEMENT punto (anio, ingresos)>
+<!ELEMENT anio (#PCDATA)>
+<!ELEMENT ingresos (#PCDATA)>

@@ -1,0 +1,123 @@
+.mapa-hero {
+  padding: 32px 40px 20px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mapa-hero__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 6px;
+}
+
+.mapa-hero__title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--color-text);
+}
+
+.mapa-hero__sub {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-top: 6px;
+}
+
+.mapa-container {
+  padding: 28px 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mapa-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.stat-card__region {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--color-accent);
+  letter-spacing: -0.5px;
+  margin-top: 4px;
+}
+
+.stat-card__label {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+.mapa-img-wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mapa-img-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mapa-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mapa-legend__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mapa-legend__bar {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #fff5f5, #ffb3b3, #e63946, #a32d2d, #501313);
+  border: 1px solid var(--color-border);
+}
+
+.mapa-legend__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.mapa-legend__labels span {
+  font-size: 0.68rem;
+  color: var(--color-muted);
+}
+
+@media (max-width: 700px) {
+  .mapa-stats { grid-template-columns: repeat(2, 1fr); }
+  .mapa-hero, .mapa-container { padding-left: 20px; padding-right: 20px; }
+}

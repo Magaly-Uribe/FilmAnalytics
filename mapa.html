@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FilmAnalytics — Mapa</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <link rel="stylesheet" href="css/header.css"/>
+  <link rel="stylesheet" href="css/mapa.css"/>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="inventario.html" class="nav-btn">Explorar</a>
+    <a href="graficas.html" class="nav-btn">Gráficas</a>
+    <a href="index.html" class="header-logo">
+      <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
+      <span class="logo-text">Film<span>Analytics</span></span>
+    </a>
+    <a href="mapa.html"         class="nav-btn active">Mapa</a>
+    <a href="predicciones.html" class="nav-btn">Predicciones</a>
+  </header>
+
+  <div class="mapa-hero">
+    <p class="mapa-hero__eyebrow">Distribución mundial</p>
+    <h1 class="mapa-hero__title">Mapa de concentración de películas exitosas</h1>
+    <p class="mapa-hero__sub">Recaudación acumulada en box office mundial por región</p>
+  </div>
+
+  <div class="mapa-container">
+
+    <div class="mapa-stats" id="mapa-stats">
+      <!-- Se rellena desde JSON -->
+    </div>
+
+    <div class="mapa-img-wrap">
+      <img src="assets/images/mapa_calor.png" alt="Mapa de calor de películas exitosas por región"/>
+    </div>
+
+    <div>
+      <div class="mapa-legend">
+        <span class="mapa-legend__title">Intensidad de recaudación:</span>
+        <div class="mapa-legend__bar"></div>
+      </div>
+      <div class="mapa-legend__labels">
+        <span>$0B — Baja</span>
+        <span>$10B</span>
+        <span>$20B</span>
+        <span>$30B</span>
+        <span>$42B+ — Alta</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const stats = [
+      { region: "EE.UU.",          valor: "$42.3B", label: "Mayor mercado global" },
+      { region: "Asia Este",       valor: "$21.1B", label: "China, Japón, Corea" },
+      { region: "Europa",          valor: "$18.7B", label: "Mercado consolidado" },
+      { region: "Resto del mundo", valor: "$13.9B", label: "Latam, África, Oceanía" },
+    ];
+
+    const wrap = document.getElementById('mapa-stats');
+    stats.forEach(s => {
+      wrap.innerHTML += `
+        <div class="stat-card">
+          <div class="stat-card__region">${s.region}</div>
+          <div class="stat-card__value">${s.valor}</div>
+          <div class="stat-card__label">${s.label}</div>
+        </div>`;
+    });
+  </script>
+
+</body>
+</html>

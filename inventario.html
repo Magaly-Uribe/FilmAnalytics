@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FilmAnalytics — Inventario</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <link rel="stylesheet" href="css/header.css"/>
+  <link rel="stylesheet" href="css/inventario.css"/>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="inventario.html"   class="nav-btn active">Explorar</a>
+    <a href="graficas.html"     class="nav-btn">Gráficas</a>
+    <a href="index.html" class="header-logo">
+      <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
+      <span class="logo-text">Film<span>Analytics</span></span>
+    </a>
+    <a href="mapa.html"         class="nav-btn">Mapa</a>
+    <a href="predicciones.html" class="nav-btn">Predicciones</a>
+  </header>
+
+  <!-- Hero -->
+  <div class="inv-hero">
+    <p class="inv-hero__eyebrow">Base de datos</p>
+    <h1 class="inv-hero__title">Inventario de películas</h1>
+    <p class="inv-hero__sub">Registro completo con filtros por título, popularidad, calificación, género, país, año y ganancias</p>
+  </div>
+
+  <!-- Filtros texto/select -->
+  <div class="inv-filters">
+    <div class="filter-group">
+      <label class="filter-label">Título</label>
+      <input class="filter-input" type="text" id="f-titulo" placeholder="Buscar por título…"/>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Género</label>
+      <select class="filter-select" id="f-genero">
+        <option value="">Todos los géneros</option>
+        <option>Acción</option>
+        <option>Animación</option>
+        <option>Aventura</option>
+        <option>Ciencia Ficción</option>
+        <option>Comedia</option>
+        <option>Drama</option>
+        <option>Terror</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">País</label>
+      <select class="filter-select" id="f-pais">
+        <option value="">Todos los países</option>
+        <option>EE.UU.</option>
+        <option>Corea</option>
+        <option>Japón</option>
+        <option>Francia</option>
+        <option>España</option>
+        <option>India</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Año</label>
+      <input class="filter-input" type="number" id="f-anio" placeholder="Ej. 2019" min="1900" max="2024"/>
+    </div>
+  </div>
+
+  <!-- Filtros de rango -->
+  <div class="inv-filters-range">
+    <div class="range-group">
+      <span class="range-label">Popularidad mín.</span>
+      <input class="range-input" type="range" id="f-pop" min="0" max="100" value="0" step="1"/>
+      <span class="range-val" id="v-pop">0</span>
+    </div>
+    <div class="range-group">
+      <span class="range-label">Calificación mín.</span>
+      <input class="range-input" type="range" id="f-cal" min="0" max="10" value="0" step="0.1"/>
+      <span class="range-val" id="v-cal">0.0</span>
+    </div>
+    <div class="range-group">
+      <span class="range-label">Ganancias mín.</span>
+      <input class="range-input" type="range" id="f-gan" min="0" max="3000000000" value="0" step="10000000"/>
+      <span class="range-val" id="v-gan">$0</span>
+    </div>
+  </div>
+
+  <!-- Barra de resultados -->
+  <div class="inv-bar">
+    <p class="inv-count">Mostrando <span id="count">0</span> películas</p>
+    <button class="inv-reset" id="btn-reset">Limpiar filtros</button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="inv-table-wrap">
+    <table class="inv-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Año</th>
+          <th>Popularidad</th>
+          <th>Calificación</th>
+          <th>Género</th>
+          <th>País</th>
+          <th>Ganancias</th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+    <p class="inv-empty" id="inv-empty" style="display:none">
+      No se encontraron películas con esos filtros.
+    </p>
+  </div>
+
+  <script>
+    let datos = [];
+
+    // Formato ganancias
+    function formatGan(n) {
+      if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n / 1e6).toFixed(0) + 'M';
+      return '$' + n.toLocaleString();
+    }
+
+    // Renderizar tabla
+    function render(lista) {
+      const tbody = document.getElementById('inv-tbody');
+      const empty = document.getElementById('inv-empty');
+      document.getElementById('count').textContent = lista.length;
+      tbody.innerHTML = '';
+
+      if (lista.length === 0) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+
+      lista.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="td-id">#${p.id}</td>
+            <td class="td-titulo">${p.titulo}</td>
+            <td class="td-muted">${p.anio}</td>
+            <td>
+              <div class="td-pop">
+                <span class="td-num">${p.popularidad}</span>
+                <div class="pop-bar-wrap">
+                  <div class="pop-bar" style="width:${p.popularidad}%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="td-num">${p.calificacion.toFixed(1)}</td>
+            <td><span class="td-badge">${p.genero}</span></td>
+            <td class="td-muted">${p.pais}</td>
+            <td class="td-num">${formatGan(p.ganancias)}</td>
+          </tr>`;
+      });
+    }
+
+    // Filtrar
+    function filtrar() {
+      const titulo = document.getElementById('f-titulo').value.toLowerCase();
+      const genero = document.getElementById('f-genero').value;
+      const pais   = document.getElementById('f-pais').value;
+      const anio   = document.getElementById('f-anio').value;
+      const pop    = parseFloat(document.getElementById('f-pop').value);
+      const cal    = parseFloat(document.getElementById('f-cal').value);
+      const gan    = parseFloat(document.getElementById('f-gan').value);
+
+      const res = datos.filter(p =>
+        (!titulo || p.titulo.toLowerCase().includes(titulo)) &&
+        (!genero || p.genero === genero) &&
+        (!pais   || p.pais === pais) &&
+        (!anio   || p.anio === parseInt(anio)) &&
+        p.popularidad  >= pop &&
+        p.calificacion >= cal &&
+        p.ganancias    >= gan
+      );
+      render(res);
+    }
+
+    // Actualizar labels de sliders
+    document.getElementById('f-pop').addEventListener('input', e => {
+      document.getElementById('v-pop').textContent = e.target.value;
+      filtrar();
+    });
+    document.getElementById('f-cal').addEventListener('input', e => {
+      document.getElementById('v-cal').textContent = parseFloat(e.target.value).toFixed(1);
+      filtrar();
+    });
+    document.getElementById('f-gan').addEventListener('input', e => {
+      document.getElementById('v-gan').textContent = formatGan(parseFloat(e.target.value));
+      filtrar();
+    });
+
+    // Filtros de texto/select
+    ['f-titulo','f-genero','f-pais','f-anio'].forEach(id => {
+      document.getElementById(id).addEventListener('input', filtrar);
+      document.getElementById(id).addEventListener('change', filtrar);
+    });
+
+    // Limpiar filtros
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      document.getElementById('f-titulo').value = '';
+      document.getElementById('f-genero').value = '';
+      document.getElementById('f-pais').value   = '';
+      document.getElementById('f-anio').value   = '';
+      document.getElementById('f-pop').value    = 0;
+      document.getElementById('f-cal').value    = 0;
+      document.getElementById('f-gan').value    = 0;
+      document.getElementById('v-pop').textContent = '0';
+      document.getElementById('v-cal').textContent = '0.0';
+      document.getElementById('v-gan').textContent = '$0';
+      render(datos);
+    });
+
+    // Cargar datos
+    fetch('data/inventario.json')
+      .then(r => r.json())
+      .then(d => { datos = d; render(datos); });
+  </script>
+
+</body>
+</html>
