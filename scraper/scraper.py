@@ -6,17 +6,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
-URL_FUENTE = "https://www.septima-ars.com/las-10-peliculas-mas-vendidas-de-la-historia-cine/"
+URL_FUENTE   = "https://www.septima-ars.com/las-10-peliculas-mas-vendidas-de-la-historia-cine/"
+TMDB_API_KEY = "279a4064cfda5f11563c96f2aeb0a7d2"
 
-SELECTORES = {
-    "heading_tags":    ["h2", "h3", "h4", "h5"],
-    "revenue_keywords":["$", "millon", "billion", "recauda", "taquill", "dólares", "usd"],
-    "img_attrs":       ["src", "data-src", "data-lazy-src", "data-original", "data-srcset"],
-}
-
-TOP_N            = 10
-MAX_REINTENTOS   = 3
-ESPERA_REINTENTOS= 2
+TOP_N             = 10
+MAX_REINTENTOS    = 3
+ESPERA_REINTENTOS = 2
 
 HEADERS = {
     "User-Agent": (
@@ -33,266 +28,212 @@ HEADERS = {
     "Upgrade-Insecure-Requests": "1",
 }
 
-BASE_DIR     = os.path.dirname(__file__)
-OUTPUT_PATH  = os.path.join(BASE_DIR, "..", "data", "peliculas.json")
-POSTERS_DIR  = os.path.join(BASE_DIR, "..", "assets", "images", "posters")
+EMOJI_A_NUM = {
+    "\u0031\ufe0f\u20e3": 1,
+    "\u0032\ufe0f\u20e3": 2,
+    "\u0033\ufe0f\u20e3": 3,
+    "\u0034\ufe0f\u20e3": 4,
+    "\u0035\ufe0f\u20e3": 5,
+    "\u0036\ufe0f\u20e3": 6,
+    "\u0037\ufe0f\u20e3": 7,
+    "\u0038\ufe0f\u20e3": 8,
+    "\u0039\ufe0f\u20e3": 9,
+    "\U0001f51f":         10,
+}
+
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_PATH = os.path.join(BASE_DIR, "..", "data", "peliculas.json")
+
+TITULO_EN_INGLES = {
+    "Avatar (2009)":                                "Avatar",
+    "Avengers: Endgame (2019)":                     "Avengers: Endgame",
+    "Titanic (1997)":                               "Titanic",
+    "Star Wars: El Despertar de la Fuerza (2015)":  "Star Wars: The Force Awakens",
+    "Avengers: Infinity War (2018)":                "Avengers: Infinity War",
+    "Spider-Man: No Way Home (2021)":               "Spider-Man: No Way Home",
+    "Jurassic World (2015)":                        "Jurassic World",
+    "El Rey Leon (2019)":                           "The Lion King",
+    "Los Vengadores (2012)":                        "The Avengers",
+    "Rapidos y Furiosos 7 (2015)":                  "Furious 7",
+}
 
 
-def obtener_html(url: str) -> BeautifulSoup:
+def obtener_html(url):
     session = requests.Session()
     session.headers.update(HEADERS)
-
     for intento in range(1, MAX_REINTENTOS + 1):
         try:
-            print(f"  [→] Intento {intento}/{MAX_REINTENTOS} — conectando…")
+            print(f"  [->] Intento {intento}/{MAX_REINTENTOS} — conectando...")
             resp = session.get(url, timeout=20)
-
             if resp.status_code == 403:
-                raise PermissionError(
-                    "403 Forbidden — el sitio bloquea scrapers.\n"
-                    "  Opciones:\n"
-                    "  • Cambia URL_FUENTE por otro sitio\n"
-                    "  • Agrega cookies reales en HEADERS\n"
-                    "  • Usa Selenium: pip install selenium"
-                )
+                raise PermissionError("403 Forbidden.")
             if resp.status_code == 404:
-                raise FileNotFoundError("404 — verifica que URL_FUENTE sea correcta.")
-
+                raise FileNotFoundError("404 — URL incorrecta.")
             resp.raise_for_status()
-            print(f"  [✓] HTML descargado — {len(resp.text):,} caracteres")
+            print(f"  [OK] HTML descargado — {len(resp.text):,} caracteres")
             return BeautifulSoup(resp.text, "html.parser")
-
         except (PermissionError, FileNotFoundError):
             raise
-
         except (requests.ConnectionError, requests.Timeout) as e:
             print(f"  [!] Error de red: {e}")
             if intento < MAX_REINTENTOS:
-                print(f"  [→] Reintentando en {ESPERA_REINTENTOS}s…")
                 time.sleep(ESPERA_REINTENTOS)
             else:
-                raise ConnectionError(
-                    f"Sin conexión tras {MAX_REINTENTOS} intentos.\n"
-                    "  Verifica tu internet."
-                )
+                raise ConnectionError(f"Sin conexion tras {MAX_REINTENTOS} intentos.")
 
 
-def descargar_imagen(url_imagen: str, rank: int) -> str | None:
-    """
-    Descarga la imagen desde url_imagen y la guarda como
-    assets/images/posters/poster_01.jpg
-    Devuelve la ruta relativa para el JSON, o None si falla.
-    """
-    if not url_imagen:
-        return None
+def buscar_poster_tmdb(titulo, rank):
+    query        = TITULO_EN_INGLES.get(titulo, titulo)
+    anio_match   = re.search(r"\((\d{4})\)", titulo)
+    anio         = anio_match.group(1) if anio_match else None
+    query_limpio = re.sub(r"\s*\(\d{4}\)", "", query).strip()
 
     try:
-        os.makedirs(POSTERS_DIR, exist_ok=True)
-        nombre  = f"poster_{rank:02d}.jpg"
-        ruta    = os.path.join(POSTERS_DIR, nombre)
+        params = {"api_key": TMDB_API_KEY, "query": query_limpio, "language": "es-MX"}
+        if anio:
+            params["year"] = anio
 
-        resp = requests.get(url_imagen, headers=HEADERS, timeout=15, stream=True)
+        resp = requests.get(
+            "https://api.themoviedb.org/3/search/movie",
+            params=params, timeout=10,
+        )
         resp.raise_for_status()
+        resultados = resp.json().get("results", [])
 
-        with open(ruta, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
+        if not resultados:
+            print(f"    [!] TMDB: no encontro '{query_limpio}'")
+            return None
 
-        ruta_relativa = f"assets/images/posters/{nombre}"
-        print(f"    [✓] Imagen #{rank:02d} → {nombre}")
-        return ruta_relativa
+        poster_path = resultados[0].get("poster_path")
+        if not poster_path:
+            print(f"    [!] TMDB: sin poster para '{query_limpio}'")
+            return None
+
+        url_imagen = f"https://image.tmdb.org/t/p/w500{poster_path}"
+        print(f"    [OK] Poster #{rank:02d} — {resultados[0].get('title')}")
+        return url_imagen
 
     except Exception as e:
-        print(f"    [!] No se pudo descargar imagen #{rank}: {e}")
+        print(f"    [!] Error TMDB #{rank}: {e}")
         return None
 
 
-
-def extraer_imagen_url(elemento) -> str | None:
-    img = elemento.find("img") if elemento else None
-    if not img:
-        return None
-    for attr in SELECTORES["img_attrs"]:
-        val = (img.get(attr) or "").strip()
-        if not val:
-            continue
-        if "," in val:  # srcset → tomar primera URL
-            val = val.split(",")[0].strip().split(" ")[0]
-        if val.startswith("http"):
-            return val
-    return None
-
-
-def limpiar_titulo(texto: str) -> str:
-    return re.sub(r"^[#\s]*\d{1,2}[\s.\-\u2013\u2014:]+", "", texto).strip()
-
-
-def es_heading_ranking(texto: str) -> bool:
-    return bool(re.match(r"^[#\s]*\d{1,2}[\s.\-\u2013\u2014:]", texto.strip()))
-
-
-def extraer_recaudacion(nodo) -> str | None:
-    for _ in range(4):
-        nodo = nodo.find_next_sibling()
-        if not nodo:
-            break
-        t = nodo.get_text(strip=True)
-        if any(kw in t.lower() for kw in SELECTORES["revenue_keywords"]):
-            m = re.search(r"[\$\u20AC\u00A3][\d,\.]+(\s*(millones?|billion|mill\.))?", t, re.I)
-            return m.group(0) if m else t[:80]
-    return None
-
-
-def estrategia_headings(soup: BeautifulSoup) -> list[dict]:
-    contenedor = soup.find("article") or soup.find("main") or soup.body
+def estrategia_emoji_headings(soup):
+    contenedor = soup.body if soup.body else soup
     peliculas  = []
-
-    for h in contenedor.find_all(SELECTORES["heading_tags"]):
+    for h in contenedor.find_all(["h2", "h3", "h4"]):
         texto = h.get_text(separator=" ", strip=True)
-        if not es_heading_ranking(texto):
+        rank  = None
+        for emoji, num in EMOJI_A_NUM.items():
+            if emoji in texto:
+                rank = num
+                break
+        if rank is None:
             continue
-        titulo = limpiar_titulo(texto)
-        if not titulo or len(titulo) < 2:
-            continue
-        peliculas.append({
-            "rank":        len(peliculas) + 1,
-            "titulo":      titulo,
-            "recaudacion": extraer_recaudacion(h),
-            "imagen_url":  extraer_imagen_url(h.parent) or extraer_imagen_url(h.find_next("figure")),
-        })
+        texto_limpio = texto
+        for emoji in EMOJI_A_NUM:
+            texto_limpio = texto_limpio.replace(emoji, "").strip()
+        partes      = re.split(r"\s*[–\-]\s*(?=\$)", texto_limpio)
+        titulo      = partes[0].strip()
+        recaudacion = partes[1].strip() if len(partes) > 1 else None
+        peliculas.append({"rank": rank, "titulo": titulo, "recaudacion": recaudacion})
         if len(peliculas) >= TOP_N:
             break
-
+    peliculas.sort(key=lambda x: x["rank"])
     return peliculas
 
 
-def estrategia_lista_ol(soup: BeautifulSoup) -> list[dict]:
-    ol = soup.find("ol")
-    if not ol:
-        return []
-    peliculas = []
-    for i, li in enumerate(ol.find_all("li", recursive=False), start=1):
-        titulo = limpiar_titulo(li.get_text(separator=" ", strip=True))
-        if not titulo or len(titulo) < 2:
-            continue
-        peliculas.append({
-            "rank":        i,
-            "titulo":      titulo,
-            "recaudacion": None,
-            "imagen_url":  extraer_imagen_url(li),
-        })
-        if len(peliculas) >= TOP_N:
-            break
-    return peliculas
-
-
-def estrategia_parrafos(soup: BeautifulSoup) -> list[dict]:
-    patron  = re.compile(
-        r"^[#\s]*(\d{1,2})[\s.\-\u2013\u2014:]+(.+?)(?:[\s\-\u2013\u2014]*(\$[\d,\.]+.*))?$",
-        re.IGNORECASE,
-    )
-    peliculas = []
-    vistos    = set()
-
-    for tag in soup.find_all(["p", "li", "div", "span"]):
-        texto = tag.get_text(separator=" ", strip=True)
-        m     = patron.match(texto)
+def estrategia_headings_numericos(soup):
+    contenedor = soup.body if soup.body else soup
+    peliculas  = []
+    for h in contenedor.find_all(["h2", "h3", "h4", "h5"]):
+        texto = h.get_text(separator=" ", strip=True)
+        m = re.match(r"^[#\s]*(\d{1,2})[\s.\-\u2013:]+(.+)", texto)
         if not m:
             continue
         rank   = int(m.group(1))
-        titulo = m.group(2).strip()
-        rev    = m.group(3).strip() if m.group(3) else None
-        if 1 <= rank <= 10 and len(titulo) > 1 and titulo not in vistos:
-            vistos.add(titulo)
-            peliculas.append({
-                "rank":        rank,
-                "titulo":      titulo,
-                "recaudacion": rev,
-                "imagen_url":  extraer_imagen_url(tag),
-            })
-
+        resto  = m.group(2).strip()
+        partes = re.split(r"\s*[–\-]\s*(?=\$)", resto)
+        titulo = partes[0].strip()
+        rec    = partes[1].strip() if len(partes) > 1 else None
+        if 1 <= rank <= 10 and len(titulo) > 1:
+            peliculas.append({"rank": rank, "titulo": titulo, "recaudacion": rec})
     peliculas.sort(key=lambda x: x["rank"])
     return peliculas[:TOP_N]
 
-def scrape(url: str) -> list[dict]:
+
+def scrape(url):
     soup = obtener_html(url)
-
     estrategias = [
-        ("headings numerados",  estrategia_headings),
-        ("lista <ol>",          estrategia_lista_ol),
-        ("párrafos con patrón", estrategia_parrafos),
+        ("emojis numericos",    estrategia_emoji_headings),
+        ("headings numerados",  estrategia_headings_numericos),
     ]
-
     for nombre, fn in estrategias:
-        print(f"  [→] Estrategia: {nombre}…", end=" ")
+        print(f"  [->] Estrategia: {nombre}...", end=" ")
         try:
             resultado = fn(soup)
         except Exception as e:
             print(f"error — {e}")
             continue
-
         if len(resultado) >= 3:
-            print(f"✓  {len(resultado)} películas")
+            print(f"OK  {len(resultado)} peliculas encontradas")
             return resultado
         else:
-            print(f"✗  solo {len(resultado)}, descartada")
-
-    raise ValueError(
-        "Ninguna estrategia extrajo suficientes datos.\n"
-        "  Inspecciona el HTML del sitio y ajusta SELECTORES."
-    )
+            print(f"X  solo {len(resultado)}, descartada")
+    raise ValueError("Ninguna estrategia extrajo suficientes datos.")
 
 
 DATOS_MANUALES = [
-    {"rank": 1,  "titulo": "Avatar",                       "recaudacion": "$2,923,706,026", "imagen": "assets/images/posters/poster_01.jpg"},
-    {"rank": 2,  "titulo": "Avengers: Endgame",            "recaudacion": "$2,799,439,100", "imagen": "assets/images/posters/poster_02.jpg"},
-    {"rank": 3,  "titulo": "Avatar: The Way of Water",     "recaudacion": "$2,320,250,281", "imagen": "assets/images/posters/poster_03.jpg"},
-    {"rank": 4,  "titulo": "Titanic",                      "recaudacion": "$2,264,743,305", "imagen": "assets/images/posters/poster_04.jpg"},
-    {"rank": 5,  "titulo": "Star Wars: The Force Awakens", "recaudacion": "$2,071,310,218", "imagen": "assets/images/posters/poster_05.jpg"},
-    {"rank": 6,  "titulo": "Avengers: Infinity War",       "recaudacion": "$2,052,415,039", "imagen": "assets/images/posters/poster_06.jpg"},
-    {"rank": 7,  "titulo": "Spider-Man: No Way Home",      "recaudacion": "$1,921,847,111", "imagen": "assets/images/posters/poster_07.jpg"},
-    {"rank": 8,  "titulo": "Inside Out 2",                 "recaudacion": "$1,698,857,492", "imagen": "assets/images/posters/poster_08.jpg"},
-    {"rank": 9,  "titulo": "Jurassic World",               "recaudacion": "$1,671,713,208", "imagen": "assets/images/posters/poster_09.jpg"},
-    {"rank": 10, "titulo": "The Lion King (2019)",         "recaudacion": "$1,663,075,401", "imagen": "assets/images/posters/poster_10.jpg"},
+    {"rank": 1,  "titulo": "Avatar (2009)",                               "recaudacion": "$2,923 millones"},
+    {"rank": 2,  "titulo": "Avengers: Endgame (2019)",                    "recaudacion": "$2,799 millones"},
+    {"rank": 3,  "titulo": "Titanic (1997)",                              "recaudacion": "$2,264 millones"},
+    {"rank": 4,  "titulo": "Star Wars: El Despertar de la Fuerza (2015)", "recaudacion": "$2,071 millones"},
+    {"rank": 5,  "titulo": "Avengers: Infinity War (2018)",               "recaudacion": "$2,052 millones"},
+    {"rank": 6,  "titulo": "Spider-Man: No Way Home (2021)",              "recaudacion": "$1,921 millones"},
+    {"rank": 7,  "titulo": "Jurassic World (2015)",                       "recaudacion": "$1,671 millones"},
+    {"rank": 8,  "titulo": "El Rey Leon (2019)",                          "recaudacion": "$1,662 millones"},
+    {"rank": 9,  "titulo": "Los Vengadores (2012)",                       "recaudacion": "$1,518 millones"},
+    {"rank": 10, "titulo": "Rapidos y Furiosos 7 (2015)",                 "recaudacion": "$1,515 millones"},
 ]
 
 
 def main():
     print("=" * 60)
-    print("  FILMANALYTICS SCRAPER")
-    print(f"  Fuente: {URL_FUENTE}")
+    print("  FILMANALYTICS SCRAPER  +  TMDB Posters")
+    print(f"  Fuente datos : {URL_FUENTE}")
+    print(f"  Fuente poster: TMDB API (URL directa, sin descarga local)")
     print("=" * 60)
-
-    peliculas = None
 
     try:
         peliculas_raw = scrape(URL_FUENTE)
-
-        print(f"\n[→] Descargando imágenes…")
-        peliculas = []
-        for p in peliculas_raw:
-            imagen_local = descargar_imagen(p.pop("imagen_url", None), p["rank"])
-            peliculas.append({
-                "rank":        p["rank"],
-                "titulo":      p["titulo"],
-                "recaudacion": p["recaudacion"],
-                "imagen":      imagen_local,
-            })
-
     except Exception as e:
-        print(f"\n[✗] Scraping falló: {e}")
-        print("\n[→] Usando datos manuales para esta entrega…")
-        peliculas = DATOS_MANUALES
+        print(f"\n[X] Scraping fallo: {e}")
+        print("[->] Usando datos manuales...")
+        peliculas_raw = DATOS_MANUALES
 
-    # Guardar JSON
+    print(f"\n[->] Obteniendo URLs de posters desde TMDB...")
+    peliculas = []
+    for p in peliculas_raw:
+        imagen_url = buscar_poster_tmdb(p["titulo"], p["rank"])
+        peliculas.append({
+            "rank":        p["rank"],
+            "titulo":      p["titulo"],
+            "recaudacion": p.get("recaudacion"),
+            "imagen":      imagen_url,
+        })
+        time.sleep(0.25)
+
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(peliculas, f, ensure_ascii=False, indent=2)
 
-    print(f"\n[✓] JSON → {os.path.abspath(OUTPUT_PATH)}\n")
+    print(f"\n[OK] JSON guardado -> {os.path.abspath(OUTPUT_PATH)}\n")
+    imgs_ok = sum(1 for p in peliculas if p.get("imagen"))
+    print(f"  Peliculas : {len(peliculas)}/{TOP_N}")
+    print(f"  Posters   : {imgs_ok} con URL  |  {TOP_N - imgs_ok} sin imagen\n")
     for p in peliculas:
-        img = "✓" if p["imagen"] else "—"
-        print(f"  #{p['rank']:>2}  {p['titulo']:<40} {p['recaudacion']:<20} img:{img}")
+        img = "OK" if p.get("imagen") else "--"
+        print(f"  #{p['rank']:>2}  {p['titulo']:<48} img:{img}")
     print()
 
 
