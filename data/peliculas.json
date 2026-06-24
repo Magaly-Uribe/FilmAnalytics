@@ -1,62 +1,62 @@
 [
   {
     "rank": 1,
-    "titulo": "Avatar",
-    "recaudacion": "$2,923,706,026",
-    "imagen": "assets/images/posters/poster_01.jpg"
+    "titulo": "Avatar (2009)",
+    "recaudacion": "$2,923 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/8zHIgB6tP34Ie34ddllzLg3F4YP.jpg"
   },
   {
     "rank": 2,
-    "titulo": "Avengers: Endgame",
-    "recaudacion": "$2,799,439,100",
-    "imagen": "assets/images/posters/poster_02.jpg"
+    "titulo": "Avengers: Endgame (2019)",
+    "recaudacion": "$2,799 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/br6krBFpaYmCSglLBWRuhui7tPc.jpg"
   },
   {
     "rank": 3,
-    "titulo": "Avatar: The Way of Water",
-    "recaudacion": "$2,320,250,281",
-    "imagen": "assets/images/posters/poster_03.jpg"
+    "titulo": "Titanic (1997)",
+    "recaudacion": "$2,264 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/2tltWMvvTqscFtdujTXDsRFTqKQ.jpg"
   },
   {
     "rank": 4,
-    "titulo": "Titanic",
-    "recaudacion": "$2,264,743,305",
-    "imagen": "assets/images/posters/poster_04.jpg"
+    "titulo": "Star Wars: El Despertar de la Fuerza (2015)",
+    "recaudacion": "$2,071 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/vI86GLIkT5pP3ZfNs2EvmTrBLBm.jpg"
   },
   {
     "rank": 5,
-    "titulo": "Star Wars: The Force Awakens",
-    "recaudacion": "$2,071,310,218",
-    "imagen": "assets/images/posters/poster_05.jpg"
+    "titulo": "Avengers: Infinity War (2018)",
+    "recaudacion": "$2,052 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/ksBQ4oHQDdJwND8H90ay8CbMihU.jpg"
   },
   {
     "rank": 6,
-    "titulo": "Avengers: Infinity War",
-    "recaudacion": "$2,052,415,039",
-    "imagen": "assets/images/posters/poster_06.jpg"
+    "titulo": "Spider-Man: No Way Home (2021)",
+    "recaudacion": "$1,921 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/miZFgV81xG324rpUknQX8dtXuBl.jpg"
   },
   {
     "rank": 7,
-    "titulo": "Spider-Man: No Way Home",
-    "recaudacion": "$1,921,847,111",
-    "imagen": "assets/images/posters/poster_07.jpg"
+    "titulo": "Jurassic World (2015)",
+    "recaudacion": "$1,671 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/auiwAi9mcSd9FAy2BZH4khBTwKZ.jpg"
   },
   {
     "rank": 8,
-    "titulo": "Inside Out 2",
-    "recaudacion": "$1,698,857,492",
-    "imagen": "assets/images/posters/poster_08.jpg"
+    "titulo": "El Rey León (2019)",
+    "recaudacion": "$1,662 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/b0MxU37dNmMwKtoPVYPKOZSIrIn.jpg"
   },
   {
     "rank": 9,
-    "titulo": "Jurassic World",
-    "recaudacion": "$1,671,713,208",
-    "imagen": "assets/images/posters/poster_09.jpg"
+    "titulo": "Los Vengadores (2012)",
+    "recaudacion": "$1,518 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/ay29o6P7HWTSMoKVVI3xgRHiRkC.jpg"
   },
   {
     "rank": 10,
-    "titulo": "The Lion King (2019)",
-    "recaudacion": "$1,663,075,401",
-    "imagen": "assets/images/posters/poster_10.jpg"
+    "titulo": "Rápidos y Furiosos 7 (2015)",
+    "recaudacion": "$1,515 millones",
+    "imagen": "https://image.tmdb.org/t/p/w500/jP0DU7uNkpnelNvH1LI3MCHEFgz.jpg"
   }
 ]

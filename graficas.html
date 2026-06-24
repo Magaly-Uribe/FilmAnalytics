@@ -100,7 +100,7 @@
     Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
     Chart.defaults.color = MUTED;
 
-    fetch('data/graficas.json')
+    fetch('api/graficas.php')
       .then(r => r.json())
       .then(d => {
 

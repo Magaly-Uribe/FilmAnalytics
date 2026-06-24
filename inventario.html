@@ -11,24 +11,22 @@
 <body>
 
   <header class="site-header">
-    <a href="inventario.html"   class="nav-btn active">Explorar</a>
-    <a href="graficas.html"     class="nav-btn">Gráficas</a>
+    <a href="inventario.html" class="nav-btn active">Explorar</a>
+    <a href="graficas.html" class="nav-btn">Gráficas</a>
     <a href="index.html" class="header-logo">
       <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
       <span class="logo-text">Film<span>Analytics</span></span>
     </a>
-    <a href="mapa.html"         class="nav-btn">Mapa</a>
+    <a href="mapa.html" class="nav-btn">Mapa</a>
     <a href="predicciones.html" class="nav-btn">Predicciones</a>
   </header>
 
-  <!-- Hero -->
   <div class="inv-hero">
     <p class="inv-hero__eyebrow">Base de datos</p>
     <h1 class="inv-hero__title">Inventario de películas</h1>
     <p class="inv-hero__sub">Registro completo con filtros por título, popularidad, calificación, género, país, año y ganancias</p>
   </div>
 
-  <!-- Filtros texto/select -->
   <div class="inv-filters">
     <div class="filter-group">
       <label class="filter-label">Título</label>
@@ -38,25 +36,33 @@
       <label class="filter-label">Género</label>
       <select class="filter-select" id="f-genero">
         <option value="">Todos los géneros</option>
-        <option>Acción</option>
-        <option>Animación</option>
-        <option>Aventura</option>
-        <option>Ciencia Ficción</option>
-        <option>Comedia</option>
-        <option>Drama</option>
-        <option>Terror</option>
+        <option value="Action">Action</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Animation">Animation</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Crime">Crime</option>
+        <option value="Drama">Drama</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Horror">Horror</option>
+        <option value="Romance">Romance</option>
+        <option value="Science Fiction">Science Fiction</option>
+        <option value="Thriller">Thriller</option>
       </select>
     </div>
     <div class="filter-group">
       <label class="filter-label">País</label>
       <select class="filter-select" id="f-pais">
         <option value="">Todos los países</option>
-        <option>EE.UU.</option>
-        <option>Corea</option>
-        <option>Japón</option>
-        <option>Francia</option>
-        <option>España</option>
-        <option>India</option>
+        <option value="United States of America">United States of America</option>
+        <option value="United Kingdom">United Kingdom</option>
+        <option value="France">France</option>
+        <option value="Canada">Canada</option>
+        <option value="Japan">Japan</option>
+        <option value="Germany">Germany</option>
+        <option value="India">India</option>
+        <option value="Australia">Australia</option>
+        <option value="China">China</option>
+        <option value="South Korea">South Korea</option>
       </select>
     </div>
     <div class="filter-group">
@@ -65,13 +71,7 @@
     </div>
   </div>
 
-  <!-- Filtros de rango -->
   <div class="inv-filters-range">
-    <div class="range-group">
-      <span class="range-label">Popularidad mín.</span>
-      <input class="range-input" type="range" id="f-pop" min="0" max="100" value="0" step="1"/>
-      <span class="range-val" id="v-pop">0</span>
-    </div>
     <div class="range-group">
       <span class="range-label">Calificación mín.</span>
       <input class="range-input" type="range" id="f-cal" min="0" max="10" value="0" step="0.1"/>
@@ -84,13 +84,11 @@
     </div>
   </div>
 
-  <!-- Barra de resultados -->
   <div class="inv-bar">
     <p class="inv-count">Mostrando <span id="count">0</span> películas</p>
     <button class="inv-reset" id="btn-reset">Limpiar filtros</button>
   </div>
 
-  <!-- Tabla -->
   <div class="inv-table-wrap">
     <table class="inv-table">
       <thead>
@@ -113,16 +111,12 @@
   </div>
 
   <script>
-    let datos = [];
-
-    // Formato ganancias
     function formatGan(n) {
       if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
       if (n >= 1e6) return '$' + (n / 1e6).toFixed(0) + 'M';
       return '$' + n.toLocaleString();
     }
 
-    // Renderizar tabla
     function render(lista) {
       const tbody = document.getElementById('inv-tbody');
       const empty = document.getElementById('inv-empty');
@@ -140,13 +134,13 @@
             <td class="td-muted">${p.anio}</td>
             <td>
               <div class="td-pop">
-                <span class="td-num">${p.popularidad}</span>
-                <div class="pop-bar-wrap">
-                  <div class="pop-bar" style="width:${p.popularidad}%"></div>
-                </div>
-              </div>
-            </td>
-            <td class="td-num">${p.calificacion.toFixed(1)}</td>
+    		<span class="td-num">${Math.round((p.popularidad / 8) * 100)}</span>
+    		<div class="pop-bar-wrap">
+      		   <div class="pop-bar" style="width:${Math.round((p.popularidad / 8) * 100)}%"></div>
+    		</div>
+  	      </div>
+	    </td>
+            <td class="td-num">${parseFloat(p.calificacion).toFixed(1)}</td>
             <td><span class="td-badge">${p.genero}</span></td>
             <td class="td-muted">${p.pais}</td>
             <td class="td-num">${formatGan(p.ganancias)}</td>
@@ -154,67 +148,60 @@
       });
     }
 
-    // Filtrar
-    function filtrar() {
-      const titulo = document.getElementById('f-titulo').value.toLowerCase();
-      const genero = document.getElementById('f-genero').value;
-      const pais   = document.getElementById('f-pais').value;
-      const anio   = document.getElementById('f-anio').value;
-      const pop    = parseFloat(document.getElementById('f-pop').value);
-      const cal    = parseFloat(document.getElementById('f-cal').value);
-      const gan    = parseFloat(document.getElementById('f-gan').value);
+    let timer = null;
+    function buscar() {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const params = new URLSearchParams();
+        const titulo  = document.getElementById('f-titulo').value;
+        const genero  = document.getElementById('f-genero').value;
+        const pais    = document.getElementById('f-pais').value;
+        const anio    = document.getElementById('f-anio').value;
+        const cal_min = document.getElementById('f-cal').value;
+        const gan_min = document.getElementById('f-gan').value;
 
-      const res = datos.filter(p =>
-        (!titulo || p.titulo.toLowerCase().includes(titulo)) &&
-        (!genero || p.genero === genero) &&
-        (!pais   || p.pais === pais) &&
-        (!anio   || p.anio === parseInt(anio)) &&
-        p.popularidad  >= pop &&
-        p.calificacion >= cal &&
-        p.ganancias    >= gan
-      );
-      render(res);
+        if (titulo)        params.append('titulo',  titulo);
+        if (genero)        params.append('genero',  genero);
+        if (pais)          params.append('pais',    pais);
+        if (anio)          params.append('anio',    anio);
+        if (cal_min > 0)   params.append('cal_min', cal_min);
+        if (gan_min > 0)   params.append('gan_min', gan_min);
+
+        fetch('api/inventario.php?' + params.toString())
+          .then(r => r.json())
+          .then(d => render(d))
+          .catch(err => console.error(err));
+      }, 400);
     }
 
-    // Actualizar labels de sliders
-    document.getElementById('f-pop').addEventListener('input', e => {
-      document.getElementById('v-pop').textContent = e.target.value;
-      filtrar();
-    });
     document.getElementById('f-cal').addEventListener('input', e => {
       document.getElementById('v-cal').textContent = parseFloat(e.target.value).toFixed(1);
-      filtrar();
+      buscar();
     });
     document.getElementById('f-gan').addEventListener('input', e => {
       document.getElementById('v-gan').textContent = formatGan(parseFloat(e.target.value));
-      filtrar();
+      buscar();
     });
 
-    // Filtros de texto/select
     ['f-titulo','f-genero','f-pais','f-anio'].forEach(id => {
-      document.getElementById(id).addEventListener('input', filtrar);
-      document.getElementById(id).addEventListener('change', filtrar);
+      document.getElementById(id).addEventListener('input', buscar);
+      document.getElementById(id).addEventListener('change', buscar);
     });
 
-    // Limpiar filtros
     document.getElementById('btn-reset').addEventListener('click', () => {
       document.getElementById('f-titulo').value = '';
       document.getElementById('f-genero').value = '';
       document.getElementById('f-pais').value   = '';
       document.getElementById('f-anio').value   = '';
-      document.getElementById('f-pop').value    = 0;
       document.getElementById('f-cal').value    = 0;
       document.getElementById('f-gan').value    = 0;
-      document.getElementById('v-pop').textContent = '0';
       document.getElementById('v-cal').textContent = '0.0';
       document.getElementById('v-gan').textContent = '$0';
-      render(datos);
+      buscar();
     });
 
-    // Cargar datos
-    fetch('data/inventario.json')
-      .then(r => r.json())
-      .then(d => { datos = d; render(datos); });
+    // Carga inicial
+    buscar();
   </script>
 
 </body>

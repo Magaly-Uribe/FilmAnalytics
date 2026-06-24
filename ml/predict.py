@@ -2,11 +2,14 @@ import pickle
 import sys
 import pandas as pd
 import numpy as np
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
-# Cargar modelo
-with open('/var/www/html/webapp/Proyecto filmin/ml/modelo.pkl', 'rb') as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELO_PATH = os.path.join(BASE_DIR, 'modelo.pkl')
+
+with open(MODELO_PATH, 'rb') as f:
     bundle = pickle.load(f)
 
 model        = bundle['model']
@@ -15,13 +18,13 @@ le           = bundle['encoders']
 features_num = bundle['features_num']
 features_cat = bundle['features_cat']
 
-def predecir(anio, genero, budget, company):
+def predecir(anio, genero, budget, company, country, language):
     df = pd.DataFrame([{
         'year':              int(anio),
         'budget':            int(budget),
         'genre_main':        genero,
-        'country_main':      'United States of America',
-        'original_language': 'en',
+        'country_main':      country,
+        'original_language': language,
         'company_main':      company
     }])
 
@@ -42,15 +45,21 @@ def predecir(anio, genero, budget, company):
     return etiqueta, confianza
 
 if __name__ == '__main__':
-    if len(sys.argv) == 5:
-        anio    = sys.argv[1]
-        genero  = sys.argv[2]
-        budget  = sys.argv[3]
-        company = sys.argv[4]
+    if len(sys.argv) == 7:
+        anio     = sys.argv[1]
+        genero   = sys.argv[2]
+        budget   = sys.argv[3]
+        company  = sys.argv[4]
+        country  = sys.argv[5]
+        language = sys.argv[6]
     else:
-        # Valores por defecto para prueba
-        anio, genero, budget, company = 2024, 'Action', 150000000, 'Paramount'
+        anio     = 2024
+        genero   = 'Action'
+        budget   = 150000000
+        company  = 'Paramount'
+        country  = 'United States of America'
+        language = 'en'
 
-    etiqueta, confianza = predecir(anio, genero, budget, company)
+    etiqueta, confianza = predecir(anio, genero, budget, company, country, language)
     print(f"Etiqueta: {etiqueta}")
     print(f"Confianza: {confianza}%")
