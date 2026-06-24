@@ -11,11 +11,13 @@ $titulo  = $input['titulo']  ?? '';
 $anio    = (int)($input['anio']   ?? 2024);
 $genero  = $input['genero']  ?? 'Drama';
 $budget  = (int)($input['budget'] ?? 0);
+$country = $input['country'] ?? 'United States of America';
+$language = $imput['language'] ?? 'en';
 $company = $input['company'] ?? 'Independiente';
 
 try {
-    $cmd    = "python3 '/var/www/html/webapp/Proyecto filmin/ml/predict.py'" .
-              " '$anio' '$genero' '$budget' '$company' 2>&1";
+    $scriptPath = __DIR__ . '/../ml/predict.py';
+    $cmd = "python \"$scriptPath\" \"$anio\" \"$genero\" \"$budget\" \"$company\" \"$country\" \"$language\" 2>&1";
     $output = shell_exec($cmd);
     $lines  = array_values(array_filter(explode("\n", trim($output))));
 

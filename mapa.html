@@ -7,9 +7,17 @@
   <link rel="stylesheet" href="css/global.css"/>
   <link rel="stylesheet" href="css/header.css"/>
   <link rel="stylesheet" href="css/mapa.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    #mapa-leaflet {
+      width: 100%;
+      height: 480px;
+      border-radius: 12px;
+      z-index: 0;
+    }
+  </style>
 </head>
 <body>
-
   <header class="site-header">
     <a href="inventario.html" class="nav-btn">Explorar</a>
     <a href="graficas.html" class="nav-btn">Gráficas</a>
@@ -17,7 +25,7 @@
       <img src="assets/images/logo_film.png" alt="" onerror="this.style.display='none'">
       <span class="logo-text">Film<span>Analytics</span></span>
     </a>
-    <a href="mapa.html"         class="nav-btn active">Mapa</a>
+    <a href="mapa.html" class="nav-btn active">Mapa</a>
     <a href="predicciones.html" class="nav-btn">Predicciones</a>
   </header>
 
@@ -28,13 +36,12 @@
   </div>
 
   <div class="mapa-container">
-
     <div class="mapa-stats" id="mapa-stats">
-      <!-- Se rellena desde JSON -->
+      <!-- Se rellena desde MariaDB -->
     </div>
 
     <div class="mapa-img-wrap">
-      <img src="assets/images/mapa_calor.png" alt="Mapa de calor de películas exitosas por región"/>
+      <div id="mapa-leaflet"></div>
     </div>
 
     <div>
@@ -47,30 +54,92 @@
         <span>$10B</span>
         <span>$20B</span>
         <span>$30B</span>
-        <span>$42B+ — Alta</span>
+        <span>$100B+ — Alta</span>
       </div>
     </div>
-
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const stats = [
-      { region: "EE.UU.",          valor: "$42.3B", label: "Mayor mercado global" },
-      { region: "Asia Este",       valor: "$21.1B", label: "China, Japón, Corea" },
-      { region: "Europa",          valor: "$18.7B", label: "Mercado consolidado" },
-      { region: "Resto del mundo", valor: "$13.9B", label: "Latam, África, Oceanía" },
-    ];
+    // Coordenadas por país
+    const COORDS = {
+      "United States of America": [37.09, -95.71],
+      "United Kingdom":           [55.37, -3.43],
+      "France":                   [46.22,  2.21],
+      "Canada":                   [56.13, -106.34],
+      "Germany":                  [51.16,  10.45],
+      "Japan":                    [36.20,  138.25],
+      "India":                    [20.59,  78.96],
+      "Australia":                [-25.27, 133.77],
+      "China":                    [35.86,  104.19],
+      "Italy":                    [41.87,  12.56],
+      "Spain":                    [40.46,  -3.74],
+      "South Korea":              [35.90,  127.76],
+      "Belgium":                  [50.50,   4.46],
+      "Denmark":                  [56.26,   9.50],
+      "Ireland":                  [53.41,  -8.24],
+      "Mexico":                   [23.63, -102.55],
+      "Hong Kong":                [22.39,  114.10],
+      "Russia":                   [61.52,  105.31],
+      "Brazil":                   [-14.23, -51.92],
+      "Czech Republic":           [49.81,  15.47],
+    };
 
-    const wrap = document.getElementById('mapa-stats');
-    stats.forEach(s => {
-      wrap.innerHTML += `
-        <div class="stat-card">
-          <div class="stat-card__region">${s.region}</div>
-          <div class="stat-card__value">${s.valor}</div>
-          <div class="stat-card__label">${s.label}</div>
-        </div>`;
-    });
+    // Inicializar mapa
+    const map = L.map('mapa-leaflet').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Cargar datos desde MariaDB
+    fetch('api/mapa.php')
+      .then(r => r.json())
+      .then(data => {
+
+        // Stats cards — top 4 países
+        const wrap = document.getElementById('mapa-stats');
+        data.slice(0, 4).forEach(p => {
+          const revenueB = (p.revenue_total / 1e9).toFixed(1);
+          wrap.innerHTML += `
+            <div class="stat-card">
+              <div class="stat-card__region">${p.pais}</div>
+              <div class="stat-card__value">$${revenueB}B</div>
+              <div class="stat-card__label">${p.total} películas · ${p.avg_rating}</div>
+            </div>`;
+        });
+
+        // Calcular máximo revenue para escalar burbujas
+        const maxRev = Math.max(...data.map(d => d.revenue_total));
+
+        // Agregar círculos al mapa
+        data.forEach(p => {
+          const coords = COORDS[p.pais];
+          if (!coords) return;
+
+          const radio     = Math.sqrt(p.revenue_total / maxRev) * 80;
+          const revenueB  = (p.revenue_total / 1e9).toFixed(2);
+          const intensidad = p.revenue_total / maxRev;
+          const color     = intensidad > 0.5 ? '#e63946' :
+                            intensidad > 0.2 ? '#f4a261' : '#2a9d8f';
+
+          L.circle(coords, {
+            radius:      radio * 15000,
+            color:       color,
+            fillColor:   color,
+            fillOpacity: 0.5,
+            weight:      1,
+          })
+          .bindPopup(`
+            <strong>${p.pais}</strong><br>
+            ${p.total} películas<br>
+            $${revenueB}B recaudación<br>
+            ${p.avg_rating} rating promedio
+          `)
+          .addTo(map);
+        });
+
+      })
+      .catch(err => console.error('Error:', err));
   </script>
-
 </body>
 </html>
