@@ -1,12 +1,13 @@
 <?php
-$host     = 'localhost';
-$dbname   = 'filmin';
+$host     = 'mysql.railway.internal';
+$port     = '3306';
+$dbname   = 'railway';
 $user     = 'root';
-$password = '';
+$password = 'XeqtRfCJkZgjAHTiYoCUKRKfuGGBpUTN';
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
         $user,
         $password
     );
