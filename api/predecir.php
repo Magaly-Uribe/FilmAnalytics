@@ -17,8 +17,10 @@ $company = $input['company'] ?? 'Independiente';
 
 try {
     $scriptPath = __DIR__ . '/../ml/predict.py';
-    $cmd = "python \"$scriptPath\" \"$anio\" \"$genero\" \"$budget\" \"$company\" \"$country\" \"$language\" 2>&1";
+    $cmd = "python3 \"$scriptPath\" \"$anio\" \"$genero\" \"$budget\" \"$company\" \"$country\" \"$language\" 2>&1";
     $output = shell_exec($cmd);
+    error_log("CMD: " . $cmd);
+    error_log("OUTPUT: " . $output);
     $lines  = array_values(array_filter(explode("\n", trim($output))));
 
     $etiqueta  = 'no exitosa';
