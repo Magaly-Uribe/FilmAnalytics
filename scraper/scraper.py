@@ -25,7 +25,7 @@ HEADERS = {
     ),
     "Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language":           "es-MX,es;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Accept-Encoding":           "gzip, deflate, br",
+    "Accept-Encoding":           "gzip, deflate",
     "Referer":                   "https://www.google.com/search?q=peliculas+mas+taquilleras+historia",
     "DNT":                       "1",
     "Connection":                "keep-alive",
