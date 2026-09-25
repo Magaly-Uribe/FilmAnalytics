@@ -12,7 +12,7 @@ $anio    = (int)($input['anio']   ?? 2024);
 $genero  = $input['genero']  ?? 'Drama';
 $budget  = (int)($input['budget'] ?? 0);
 $country = $input['country'] ?? 'United States of America';
-$language = $imput['language'] ?? 'en';
+$language = $input['language'] ?? 'en';
 $company = $input['company'] ?? 'Independiente';
 
 try {
