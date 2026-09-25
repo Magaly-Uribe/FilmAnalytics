@@ -4,10 +4,14 @@ import re
 import time
 import requests
 from bs4 import BeautifulSoup
-
+from dotenv import load_dotenv
 
 URL_FUENTE   = "https://www.septima-ars.com/las-10-peliculas-mas-vendidas-de-la-historia-cine/"
-TMDB_API_KEY = "279a4064cfda5f11563c96f2aeb0a7d2"
+
+load_dotenv()
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+if not TMDB_API_KEY:
+    raise SystemExit("Falta TMDB_API_KEY en el archivo .env (usa .env.example como guía)")
 
 TOP_N             = 10
 MAX_REINTENTOS    = 3
