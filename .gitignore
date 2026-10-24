@@ -1,6 +1,4 @@
 config/db.php
-ml/modelo.pkl
-data/*.json
 .env
 data/raw/
 .ipynb_checkpoints/
